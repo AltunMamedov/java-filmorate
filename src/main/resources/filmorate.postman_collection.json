@@ -1,0 +1,88 @@
+{
+  "info": {
+    "name": "Filmorate API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Создать пользователя",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@mail.com\",\n  \"login\": \"user1\",\n  \"name\": \"User One\",\n  \"birthday\": \"1990-05-20\"\n}"
+            },
+            "url": { "raw": "http://localhost:8080/users", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["users"] }
+          }
+        },
+        {
+          "name": "Обновить пользователя",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"email\": \"newuser@mail.com\",\n  \"login\": \"user1\",\n  \"name\": \"User Updated\",\n  \"birthday\": \"1991-10-10\"\n}"
+            },
+            "url": { "raw": "http://localhost:8080/users", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["users"] }
+          }
+        },
+        {
+          "name": "Получить всех пользователей",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:8080/users", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["users"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Films",
+      "item": [
+        {
+          "name": "Добавить фильм",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Inception\",\n  \"description\": \"A mind-bending thriller\",\n  \"releaseDate\": \"2010-07-16\",\n  \"duration\": 148\n}"
+            },
+            "url": { "raw": "http://localhost:8080/films", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["films"] }
+          }
+        },
+        {
+          "name": "Обновить фильм",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"name\": \"Inception Updated\",\n  \"description\": \"Updated description\",\n  \"releaseDate\": \"2010-07-16\",\n  \"duration\": 150\n}"
+            },
+            "url": { "raw": "http://localhost:8080/films", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["films"] }
+          }
+        },
+        {
+          "name": "Получить все фильмы",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "http://localhost:8080/films", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["films"] }
+          }
+        }
+      ]
+    }
+  ]
+}
