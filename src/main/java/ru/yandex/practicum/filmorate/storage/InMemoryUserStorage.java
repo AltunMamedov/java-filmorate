@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class InMemoryUserStorage implements UserStorage{
+public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
     private long idCounter = 1;
 
@@ -41,6 +41,7 @@ public class InMemoryUserStorage implements UserStorage{
     public Collection<User> getAllUsers() {
         return users.values();
     }
+
     @Override
     public User getUserById(Long id) {
         if (!users.containsKey(id)) {
