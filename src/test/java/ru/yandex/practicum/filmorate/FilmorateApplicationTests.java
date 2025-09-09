@@ -78,21 +78,17 @@ class FilmorateApplicationTests {
 
     @Test
     void shouldAddAndRemoveFriend() {
-        final User user1 = userController.createUser(new User() {
-            {
-                setEmail("user1@mail.com");
-                setLogin("user1");
-                setBirthday(LocalDate.of(1990, 1, 1));
-            }
-        });
+        final User user1 = userController.createUser(new User() {{
+            setEmail("user1@mail.com");
+            setLogin("user1");
+            setBirthday(LocalDate.of(1990, 1, 1));
+        }});
 
-        final User user2 = userController.createUser(new User() {
-            {
-                setEmail("user2@mail.com");
-                setLogin("user2");
-                setBirthday(LocalDate.of(1990, 1, 1));
-            }
-        });
+        final User user2 = userController.createUser(new User() {{
+            setEmail("user2@mail.com");
+            setLogin("user2");
+            setBirthday(LocalDate.of(1990, 1, 1));
+        }});
 
         userController.addFriend(user1.getId(), user2.getId());
         Set<User> friendsOfUser1 = userController.getFriends(user1.getId());
@@ -111,29 +107,23 @@ class FilmorateApplicationTests {
 
     @Test
     void shouldGetCommonFriends() {
-        final User user1 = userController.createUser(new User() {
-            {
-                setEmail("a@mail.com");
-                setLogin("a");
-                setBirthday(LocalDate.of(1990, 1, 1));
-            }
-        });
+        final User user1 = userController.createUser(new User() {{
+            setEmail("a@mail.com");
+            setLogin("a");
+            setBirthday(LocalDate.of(1990, 1, 1));
+        }});
 
-        final User user2 = userController.createUser(new User() {
-            {
-                setEmail("b@mail.com");
-                setLogin("b");
-                setBirthday(LocalDate.of(1990, 1, 1));
-            }
-        });
+        final User user2 = userController.createUser(new User() {{
+            setEmail("b@mail.com");
+            setLogin("b");
+            setBirthday(LocalDate.of(1990, 1, 1));
+        }});
 
-        final User friend = userController.createUser(new User() {
-            {
-                setEmail("c@mail.com");
-                setLogin("c");
-                setBirthday(LocalDate.of(1990, 1, 1));
-            }
-        });
+        final User friend = userController.createUser(new User() {{
+            setEmail("c@mail.com");
+            setLogin("c");
+            setBirthday(LocalDate.of(1990, 1, 1));
+        }});
 
         userController.addFriend(user1.getId(), friend.getId());
         userController.addFriend(user2.getId(), friend.getId());
