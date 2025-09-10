@@ -1,0 +1,94 @@
+{
+  "info": {
+    "name": "Filmorate API",
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-1234567890ab",
+    "description": "Коллекция запросов для тестирования Filmorate",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Создать пользователя",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"vasilii.pupkin@practicum.ru\",\n  \"login\": \"pumpkin\",\n  \"name\": \"Василий Пупкин\",\n  \"birthday\": \"1986-08-20\"\n}"
+        },
+        "url": { "raw": "http://localhost:8080/users", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["users"] }
+      }
+    },
+    {
+      "name": "Получить пользователя по ID",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/users/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["users", "1"] }
+      }
+    },
+    {
+      "name": "Добавить друга",
+      "request": {
+        "method": "PUT",
+        "url": { "raw": "http://localhost:8080/users/1/friends/2", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["users","1","friends","2"] }
+      }
+    },
+    {
+      "name": "Удалить друга",
+      "request": {
+        "method": "DELETE",
+        "url": { "raw": "http://localhost:8080/users/1/friends/2", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["users","1","friends","2"] }
+      }
+    },
+    {
+      "name": "Список друзей",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/users/1/friends", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["users","1","friends"] }
+      }
+    },
+    {
+      "name": "Общие друзья",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/users/1/friends/common/3", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["users","1","friends","common","3"] }
+      }
+    },
+    {
+      "name": "Создать фильм",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Матрица\",\n  \"description\": \"Фильм о виртуальной реальности\",\n  \"releaseDate\": \"1999-03-31\",\n  \"duration\": 136\n}"
+        },
+        "url": { "raw": "http://localhost:8080/films", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["films"] }
+      }
+    },
+    {
+      "name": "Поставить лайк фильму",
+      "request": {
+        "method": "PUT",
+        "url": { "raw": "http://localhost:8080/films/1/like/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["films","1","like","1"] }
+      }
+    },
+    {
+      "name": "Удалить лайк",
+      "request": {
+        "method": "DELETE",
+        "url": { "raw": "http://localhost:8080/films/1/like/1", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["films","1","like","1"] }
+      }
+    },
+    {
+      "name": "Популярные фильмы",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/films/popular?count=10", "protocol": "http", "host": ["localhost"], "port": "8080", "path": ["films","popular"], "query":[{"key":"count","value":"10"}] }
+      }
+    }
+  ]
+}
