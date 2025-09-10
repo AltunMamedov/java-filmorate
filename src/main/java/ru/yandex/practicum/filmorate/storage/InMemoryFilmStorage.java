@@ -10,37 +10,33 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Component
-
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
-    private long idCounter = 1;
+    private final AtomicLong idGenerator = new AtomicLong(0);
 
     @Override
     public Film addFilm(Film film) {
-        validate(film);
-        film.setId(idCounter++);
-        films.put(film.getId(), film);
-        log.info("Фильм добавлен: {}", film);
+        validateFilm(film);
+        long id = idGenerator.incrementAndGet();
+        film.setId(id);
+        films.put(id, film);
+        log.info("Добавлен фильм '{}' с id={}", film.getName(), id);
         return film;
     }
 
     @Override
     public Film updateFilm(Film film) {
-        validate(film);
-        if (!films.containsKey(film.getId())) {
-            throw new RuntimeException("Фильм не найден");
+        if (film.getId() == null || !films.containsKey(film.getId())) {
+            throw new NotFoundException("Фильм с id " + film.getId() + " не найден");
         }
+        validateFilm(film);
         films.put(film.getId(), film);
-        log.info("Фильм обновлён: {}", film);
+        log.info("Обновлён фильм id={}", film.getId());
         return film;
-    }
-
-    @Override
-    public Collection<Film> getAllFilms() {
-        return films.values();
     }
 
     @Override
@@ -51,7 +47,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.get(id);
     }
 
-    private void validate(Film film) {
+    @Override
+    public Collection<Film> getAllFilms() {
+        return films.values();
+    }
+
+    private void validateFilm(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             throw new ValidationException("Название фильма не может быть пустым");
         }

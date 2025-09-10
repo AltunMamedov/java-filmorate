@@ -10,36 +10,33 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
-    private long idCounter = 1;
+    private final AtomicLong idGenerator = new AtomicLong(0);
 
     @Override
     public User addUser(User user) {
         validateUser(user);
-        user.setId(idCounter++);
-        users.put(user.getId(), user);
-        log.info("Пользователь создан: {}", user);
+        long id = idGenerator.incrementAndGet();
+        user.setId(id);
+        users.put(id, user);
+        log.info("Создан пользователь {} с id={}", user.getLogin(), id);
         return user;
     }
 
     @Override
     public User updateUser(User user) {
-        validateUser(user);
-        if (!users.containsKey(user.getId())) {
-            throw new RuntimeException("Пользователь не найден");
+        if (user.getId() == null || !users.containsKey(user.getId())) {
+            throw new NotFoundException("Пользователь с id " + user.getId() + " не найден");
         }
+        validateUser(user);
         users.put(user.getId(), user);
-        log.info("Пользователь обновлён: {}", user);
+        log.info("Обновлён пользователь id={}", user.getId());
         return user;
-    }
-
-    @Override
-    public Collection<User> getAllUsers() {
-        return users.values();
     }
 
     @Override
@@ -48,6 +45,11 @@ public class InMemoryUserStorage implements UserStorage {
             throw new NotFoundException("Пользователь с id " + id + " не найден");
         }
         return users.get(id);
+    }
+
+    @Override
+    public Collection<User> getAllUsers() {
+        return users.values();
     }
 
     private void validateUser(User user) {

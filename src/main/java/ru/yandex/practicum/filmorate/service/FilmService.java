@@ -3,48 +3,48 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
-
+    private final UserStorage userStorage;
     private final Map<Long, Set<Long>> likesMap = new HashMap<>();
 
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
     }
 
     public Film addFilm(Film film) {
-        Film savedFilm = filmStorage.addFilm(film);
-        log.info("Фильм добавлен: {}", savedFilm);
-        return savedFilm;
+        Film created = filmStorage.addFilm(film);
+        likesMap.putIfAbsent(created.getId(), new HashSet<>());
+        return created;
     }
 
     public Film updateFilm(Film film) {
-        Film updatedFilm = filmStorage.updateFilm(film);
-        log.info("Фильм обновлён: {}", updatedFilm);
-        return updatedFilm;
-    }
-
-    public Film getFilmById(Long id) {
-        Film film = filmStorage.getFilmById(id);
-        log.info("Получен фильм с id {}: {}", id, film);
-        return film;
+        Film updated = filmStorage.updateFilm(film);
+        likesMap.putIfAbsent(updated.getId(), new HashSet<>());
+        return updated;
     }
 
     public Collection<Film> getAllFilms() {
-        Collection<Film> films = filmStorage.getAllFilms();
-        log.info("Получено {} фильмов", films.size());
-        return films;
+        return filmStorage.getAllFilms();
     }
 
+    public Film getFilmById(Long id) {
+        return Optional.ofNullable(filmStorage.getFilmById(id))
+                .orElseThrow(() -> new NotFoundException("Фильм с id " + id + " не найден"));
+    }
 
     public void addLike(Long filmId, Long userId) {
         getFilmById(filmId);
+        userStorage.getUserById(userId); // will throw if not found
 
         likesMap.putIfAbsent(filmId, new HashSet<>());
         likesMap.get(filmId).add(userId);
@@ -54,6 +54,7 @@ public class FilmService {
 
     public void removeLike(Long filmId, Long userId) {
         getFilmById(filmId);
+        userStorage.getUserById(userId);
 
         Set<Long> likes = likesMap.get(filmId);
         if (likes != null) {
@@ -65,15 +66,11 @@ public class FilmService {
 
     public List<Film> getPopularFilms(int count) {
         List<Film> films = new ArrayList<>(filmStorage.getAllFilms());
-
         films.sort((f1, f2) -> {
             int likes1 = likesMap.getOrDefault(f1.getId(), Collections.emptySet()).size();
             int likes2 = likesMap.getOrDefault(f2.getId(), Collections.emptySet()).size();
-            return likes2 - likes1;
+            return Integer.compare(likes2, likes1);
         });
-
-        List<Film> popular = films.subList(0, Math.min(count, films.size()));
-        log.info("Возвращено {} популярных фильмов", popular.size());
-        return popular;
+        return films.stream().limit(count).collect(Collectors.toList());
     }
 }

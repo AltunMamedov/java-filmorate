@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -18,42 +19,42 @@ public class UserService {
     }
 
     public User addUser(User user) {
-        return userStorage.addUser(user);
+        User created = userStorage.addUser(user);
+        friendsMap.putIfAbsent(created.getId(), new HashSet<>());
+        return created;
     }
 
     public User updateUser(User user) {
-        return userStorage.updateUser(user);
-    }
-
-    public User getUserById(Long id) {
-        return userStorage.getUserById(id);
+        User updated = userStorage.updateUser(user);
+        friendsMap.putIfAbsent(updated.getId(), new HashSet<>());
+        return updated;
     }
 
     public Collection<User> getAllUsers() {
         return userStorage.getAllUsers();
     }
 
+    public User getUserById(Long id) {
+        return Optional.ofNullable(userStorage.getUserById(id))
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
+    }
+
     public void addFriend(Long userId, Long friendId) {
-        User user = getUserById(userId);
-        User friend = getUserById(friendId);
+        getUserById(userId);
+        getUserById(friendId);
 
-        if (!friendsMap.containsKey(userId)) {
-            friendsMap.put(userId, new HashSet<>());
-        }
+        friendsMap.putIfAbsent(userId, new HashSet<>());
+        friendsMap.putIfAbsent(friendId, new HashSet<>());
+
         friendsMap.get(userId).add(friendId);
-
-
-        if (!friendsMap.containsKey(friendId)) {
-            friendsMap.put(friendId, new HashSet<>());
-        }
         friendsMap.get(friendId).add(userId);
 
-        log.info("Пользователи {} и {} теперь друзья", userId, friendId);
+        log.info("Пользователь {} и {} теперь друзья", userId, friendId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        User user = getUserById(userId);
-        User friend = getUserById(friendId);
+        getUserById(userId);
+        getUserById(friendId);
 
         Set<Long> userFriends = friendsMap.get(userId);
         if (userFriends != null) {
@@ -69,21 +70,14 @@ public class UserService {
     }
 
     public Set<User> getFriends(Long userId) {
-        User user = getUserById(userId);
-
-        Set<Long> friendIds = friendsMap.getOrDefault(userId, new HashSet<>());
-        Set<User> friends = new HashSet<>();
-        for (Long id : friendIds) {
-            friends.add(getUserById(id));
-        }
-
-        log.info("Пользователь {} имеет {} друзей", userId, friends.size());
-        return friends;
+        getUserById(userId);
+        Set<Long> ids = friendsMap.getOrDefault(userId, new HashSet<>());
+        return ids.stream().map(userStorage::getUserById).collect(Collectors.toSet());
     }
 
     public Set<User> getCommonFriends(Long userId, Long otherId) {
-        User user = getUserById(userId);
-        User other = getUserById(otherId);
+        getUserById(userId);
+        getUserById(otherId);
 
         Set<Long> userFriends = friendsMap.getOrDefault(userId, new HashSet<>());
         Set<Long> otherFriends = friendsMap.getOrDefault(otherId, new HashSet<>());
@@ -91,12 +85,6 @@ public class UserService {
         Set<Long> commonIds = new HashSet<>(userFriends);
         commonIds.retainAll(otherFriends);
 
-        Set<User> commonFriends = new HashSet<>();
-        for (Long id : commonIds) {
-            commonFriends.add(getUserById(id));
-        }
-
-        log.info("Пользователи {} и {} имеют {} общих друзей", userId, otherId, commonFriends.size());
-        return commonFriends;
+        return commonIds.stream().map(userStorage::getUserById).collect(Collectors.toSet());
     }
 }
