@@ -1,14 +1,13 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
-@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
@@ -24,7 +23,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody Film film) {
+    public Optional<Film> updateFilm(@RequestBody Film film) {
         return filmService.updateFilm(film);
     }
 
