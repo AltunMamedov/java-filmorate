@@ -26,6 +26,7 @@ public class UserController {
         return userService.updateUser(user);
     }
 
+
     @GetMapping
     public Collection<User> getAllUsers() {
         return userService.getAllUsers();
