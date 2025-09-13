@@ -66,8 +66,11 @@ public class FilmService {
 
     public void addLike(Long filmId, Long userId) {
         log.info("Добавление лайка фильму {} от пользователя {}", filmId, userId);
+
         getFilmById(filmId);
-        userStorage.getUserById(userId);
+
+        userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
 
         likesMap.putIfAbsent(filmId, new HashSet<>());
         likesMap.get(filmId).add(userId);
@@ -77,15 +80,18 @@ public class FilmService {
 
     public void removeLike(Long filmId, Long userId) {
         log.info("Удаление лайка у фильма {} от пользователя {}", filmId, userId);
+
         getFilmById(filmId);
-        userStorage.getUserById(userId);
+
+        userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
 
         Set<Long> likes = likesMap.get(filmId);
         if (likes != null) {
             likes.remove(userId);
         }
 
-        log.info("Пользователь {} убрал лайк с фильма {}", userId, filmId);
+        log.debug("Пользователь {} убрал лайк с фильма {}", userId, filmId);
     }
 
     public List<Film> getPopularFilms(int count) {
