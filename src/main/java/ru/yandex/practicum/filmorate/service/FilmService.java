@@ -33,19 +33,19 @@ public class FilmService {
         return created;
     }
 
-    public Optional<Film> updateFilm(Film film) {
+    public Film updateFilm(Film film) {
         log.info("Обновление фильма: {}", film);
-
         filmStorage.getFilmById(film.getId())
                 .orElseThrow(() -> new NotFoundException("Фильм с id " + film.getId() + " не найден"));
         validateFilm(film);
-        Optional<Film> updatedOpt = filmStorage.updateFilm(film);
-        updatedOpt.ifPresent(updated -> {
-            likesMap.putIfAbsent(updated.getId(), new HashSet<>());
-            log.debug("Фильм обновлён: id={}", updated.getId());
-        });
 
-        return updatedOpt;
+        Film updated = filmStorage.updateFilm(film)
+                .orElseThrow(() -> new NotFoundException("Фильм с id " + film.getId() + " не найден"));
+
+        likesMap.putIfAbsent(updated.getId(), new HashSet<>());
+        log.debug("Фильм обновлён: id={}", updated.getId());
+
+        return updated;
     }
 
 

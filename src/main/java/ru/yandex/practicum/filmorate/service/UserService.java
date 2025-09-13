@@ -32,17 +32,18 @@ public class UserService {
 
     public User updateUser(User user) {
         log.info("Обновление пользователя: {}", user);
-
         userStorage.getUserById(user.getId())
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + user.getId() + " не найден"));
-
         validateUser(user);
+        User updated = userStorage.updateUser(user)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + user.getId() + " не найден"));
 
-        Optional<User> updated = userStorage.updateUser(user);
-        friendsMap.putIfAbsent(updated.get().getId(), new HashSet<>());
-        log.debug("Пользователь обновлён: id={}", updated.get().getId());
-        return updated.orElse(null);
+        friendsMap.putIfAbsent(updated.getId(), new HashSet<>());
+        log.debug("Пользователь обновлён: id={}", updated.getId());
+
+        return updated;
     }
+
 
     public Collection<User> getAllUsers() {
         log.info("Запрос списка всех пользователей");
