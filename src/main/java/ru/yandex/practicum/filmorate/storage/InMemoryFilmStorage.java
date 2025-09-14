@@ -27,12 +27,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> updateFilm(Film film) {
-
+    public Film updateFilm(Film film) {
         films.put(film.getId(), film);
         log.info("Фильм обновлён id={}", film.getId());
-        return Optional.ofNullable(film);
+        return film;
     }
+
 
     @Override
     public Optional<Film> getFilmById(Long id) {

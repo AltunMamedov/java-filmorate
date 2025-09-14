@@ -27,14 +27,15 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> updateUser(User user) {
+    public User updateUser(User user) {
         if (user.getId() == null || !users.containsKey(user.getId())) {
             throw new NotFoundException("Пользователь с id " + user.getId() + " не найден");
         }
         users.put(user.getId(), user);
         log.info("Обновлён пользователь id={}", user.getId());
-        return Optional.ofNullable(user);
+        return user;
     }
+
 
     @Override
     public Optional<User> getUserById(Long id) {

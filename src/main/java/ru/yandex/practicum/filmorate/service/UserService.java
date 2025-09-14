@@ -32,11 +32,11 @@ public class UserService {
 
     public User updateUser(User user) {
         log.info("Обновление пользователя: {}", user);
-        userStorage.getUserById(user.getId())
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + user.getId() + " не найден"));
+
+        requireUserExists(user.getId());
         validateUser(user);
-        User updated = userStorage.updateUser(user)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + user.getId() + " не найден"));
+
+        User updated = userStorage.updateUser(user);
 
         friendsMap.putIfAbsent(updated.getId(), new HashSet<>());
         log.debug("Пользователь обновлён: id={}", updated.getId());
@@ -52,11 +52,7 @@ public class UserService {
 
     public User getUserById(Long id) {
         log.info("Запрос пользователя по id={}", id);
-        return userStorage.getUserById(id)
-                .orElseThrow(() -> {
-                    log.warn("Пользователь с id={} не найден", id);
-                    return new NotFoundException("Пользователь с id " + id + " не найден");
-                });
+        return requireUserExists(id);
     }
 
     public void addFriend(Long userId, Long friendId) {
@@ -64,8 +60,9 @@ public class UserService {
             throw new ValidationException("Пользователь не может добавить в друзья сам себя");
         }
         log.info("Добавление в друзья: userId={} friendId={}", userId, friendId);
-        getUserById(userId);
-        getUserById(friendId);
+
+        requireUserExists(userId);
+        requireUserExists(friendId);
 
         friendsMap.putIfAbsent(userId, new HashSet<>());
         friendsMap.putIfAbsent(friendId, new HashSet<>());
@@ -81,8 +78,9 @@ public class UserService {
             throw new ValidationException("Нельзя удалить самого себя из друзей");
         }
         log.info("Удаление из друзей: userId={} friendId={}", userId, friendId);
-        getUserById(userId);
-        getUserById(friendId);
+
+        requireUserExists(userId);
+        requireUserExists(friendId);
 
         friendsMap.getOrDefault(userId, new HashSet<>()).remove(friendId);
         friendsMap.getOrDefault(friendId, new HashSet<>()).remove(userId);
@@ -92,12 +90,12 @@ public class UserService {
 
     public Set<User> getFriends(Long userId) {
         log.info("Запрос списка друзей пользователя {}", userId);
-        getUserById(userId);
+        requireUserExists(userId);
 
         Set<Long> ids = friendsMap.getOrDefault(userId, Collections.emptySet());
 
         Set<User> result = ids.stream()
-                .map(this::getUserById)
+                .map(this::requireUserExists)
                 .collect(Collectors.toSet());
 
         log.debug("У пользователя {} {} друзей: {}", userId, result.size(),
@@ -106,12 +104,11 @@ public class UserService {
         return result;
     }
 
-
     public Set<User> getCommonFriends(Long userId, Long otherId) {
         log.info("Запрос общих друзей пользователей {} и {}", userId, otherId);
 
-        getUserById(userId);
-        getUserById(otherId);
+        requireUserExists(userId);
+        requireUserExists(otherId);
 
         Set<Long> userFriends = friendsMap.getOrDefault(userId, Collections.emptySet());
         Set<Long> otherFriends = friendsMap.getOrDefault(otherId, Collections.emptySet());
@@ -120,7 +117,7 @@ public class UserService {
         commonIds.retainAll(otherFriends);
 
         Set<User> result = commonIds.stream()
-                .map(this::getUserById)
+                .map(this::requireUserExists)
                 .collect(Collectors.toSet());
 
         log.debug("Общие друзья пользователей {} и {} ({}): {}", userId, otherId, result.size(),
@@ -144,4 +141,8 @@ public class UserService {
         }
     }
 
+    private User requireUserExists(Long userId) {
+        return userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
+    }
 }

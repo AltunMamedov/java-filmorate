@@ -35,12 +35,11 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         log.info("Обновление фильма: {}", film);
-        filmStorage.getFilmById(film.getId())
-                .orElseThrow(() -> new NotFoundException("Фильм с id " + film.getId() + " не найден"));
+
+        requireFilmExists(film.getId());
         validateFilm(film);
 
-        Film updated = filmStorage.updateFilm(film)
-                .orElseThrow(() -> new NotFoundException("Фильм с id " + film.getId() + " не найден"));
+        Film updated = filmStorage.updateFilm(film);
 
         likesMap.putIfAbsent(updated.getId(), new HashSet<>());
         log.debug("Фильм обновлён: id={}", updated.getId());
@@ -67,10 +66,8 @@ public class FilmService {
     public void addLike(Long filmId, Long userId) {
         log.info("Добавление лайка фильму {} от пользователя {}", filmId, userId);
 
-        getFilmById(filmId);
-
-        userStorage.getUserById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
+        requireFilmExists(filmId);
+        requireUserExists(userId);
 
         likesMap.putIfAbsent(filmId, new HashSet<>());
         likesMap.get(filmId).add(userId);
@@ -78,13 +75,12 @@ public class FilmService {
         log.debug("У фильма {} теперь {} лайков", filmId, likesMap.get(filmId).size());
     }
 
+
     public void removeLike(Long filmId, Long userId) {
         log.info("Удаление лайка у фильма {} от пользователя {}", filmId, userId);
 
-        getFilmById(filmId);
-
-        userStorage.getUserById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
+        requireFilmExists(filmId);
+        requireUserExists(userId);
 
         Set<Long> likes = likesMap.get(filmId);
         if (likes != null) {
@@ -93,6 +89,7 @@ public class FilmService {
 
         log.debug("Пользователь {} убрал лайк с фильма {}", userId, filmId);
     }
+
 
     public List<Film> getPopularFilms(int count) {
         if (count <= 0) {
@@ -129,4 +126,16 @@ public class FilmService {
             throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
     }
+
+    private Film requireFilmExists(Long filmId) {
+        return filmStorage.getFilmById(filmId)
+                .orElseThrow(() -> new NotFoundException("Фильм с id " + filmId + " не найден"));
+    }
+
+    private void requireUserExists(Long userId) {
+        userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
+    }
+
+
 }
